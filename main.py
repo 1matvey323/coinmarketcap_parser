@@ -1,5 +1,5 @@
 import requests
-import PySimpleGUI as sg
+import PySimpleGUI as Sg
 from io import BytesIO
 from PIL import Image
 
@@ -40,13 +40,13 @@ def get_info(token):
             return
 
 
-sg.theme('Reddit')
+Sg.theme('Reddit')
 layout = [
-    [sg.Text('Enter coin'), sg.InputText(do_not_clear=False)],
-    [sg.Button('Ok'), sg.Button('Exit')],
-    [sg.Output(size=(50, 7)), sg.Image(key="-IMAGE-", size=(60, 60))]
+    [Sg.Text('Enter coin'), Sg.InputText(do_not_clear=False)],
+    [Sg.Button('Ok'), Sg.Button('Exit')],
+    [Sg.Output(size=(50, 7)), Sg.Image(key="-IMAGE-", size=(60, 60))]
 ]
-window = sg.Window('Crypto', layout)
+window = Sg.Window('Crypto', layout)
 
 
 if __name__ == '__main__':
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     print('1')
     while True:
         event, values = window.read()
-        if event == sg.WIN_CLOSED or event == 'Exit':
+        if event == Sg.WIN_CLOSED or event == 'Exit':
             break
         if event:
             get_info(values[0])
