@@ -50,8 +50,6 @@ window = Sg.Window('Crypto', layout)
 
 
 if __name__ == '__main__':
-    print('started')
-    print('1')
     while True:
         event, values = window.read()
         if event == Sg.WIN_CLOSED or event == 'Exit':
