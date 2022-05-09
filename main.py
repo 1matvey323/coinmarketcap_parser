@@ -62,18 +62,21 @@ class Parser:
 
 
 def main():
+    
     Sg.theme('Reddit')
-
     layout = [
         [Sg.Text('Enter coin'), Sg.InputText(do_not_clear=False)],
         [Sg.Button('Ok'), Sg.Button('Exit')],
         [Sg.Output(size=(50, 7)), Sg.Image(key="-IMAGE-", size=(60, 60))]
     ]
     parser = Parser('', layout)
+    
     while True:
         event, values = parser.window.read()
+        
         if event == Sg.WIN_CLOSED or event == 'Exit':
             break
+        
         if event:
             parser.token = values[0]
             parser.get_info()
