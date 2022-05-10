@@ -10,7 +10,6 @@ class Parser:
         self.__token = token
         self.__window = Sg.Window('Crypto', layout)
         self.__limit = 1000
-        self.__response = None
 
     @property
     def token(self):
@@ -33,10 +32,11 @@ class Parser:
             url=f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit={self.__limit}',
             stream=True
         ).json()
-        self.__response = response
 
-    def get_img(self):
-        for item in self.__response['data']['cryptoCurrencyList']:
+        return response
+
+    def get_img(self, response):
+        for item in response['data']['cryptoCurrencyList']:
             if item.get('symbol').lower() == self.__token.lower() or item.get('name').lower() == self.__token.lower():
                 r = requests.get(url=f'https://s2.coinmarketcap.com/static/img/coins/64x64/{item.get("id")}.png')
                 pil_image = Image.open(BytesIO(r.content))
@@ -46,8 +46,8 @@ class Parser:
 
                 return png_bio.getvalue()
 
-    def get_caption(self):
-        for item in self.__response['data']['cryptoCurrencyList']:
+    def get_caption(self, response):
+        for item in response['data']['cryptoCurrencyList']:
             if item.get('symbol').lower() == self.__token.lower() or item.get('name').lower() == self.__token.lower():
                 name = item['name']
                 symbol = item['symbol']
@@ -56,13 +56,14 @@ class Parser:
                 price = item['quotes'][0]['price']
                 volume = item['quotes'][0]['volume24h']
 
-                print(f'Токен - {name} ({symbol})\n'
+                message = (
+                      f'Токен - {name} ({symbol})\n'
                       f'Цена - {round(price, 2)} $USD\n'
                       f'Количество монет - {round(total_supply, 2)} {symbol.upper()}\n'
                       f'Рыночная капитализация - {round(market_cap, 2)} $USD\n'
                       f'Объем рынка (24ч) - {round(volume, 2)} $USD\n')
 
-                return
+                return message
 
 
 def main():
@@ -80,9 +81,9 @@ def main():
             break
         if event:
             parser.token = values[0]
-            parser.get_data()
-            parser.get_caption()
-            parser.window["-IMAGE-"].update(parser.get_img())
+            response = parser.get_data()
+            print(parser.get_caption(response))
+            parser.window["-IMAGE-"].update(parser.get_img(response))
 
 
 if __name__ == '__main__':
