@@ -9,6 +9,7 @@ class Parser:
         self.__layout = layout
         self.__token = token
         self.__window = Sg.Window('Crypto', layout)
+        self.__limit = 1000
 
     @property
     def token(self):
@@ -28,7 +29,7 @@ class Parser:
 
     def get_img(self):
         response = requests.get(
-            url='https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit=1000',
+            url=f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit={self.__limit}',
             stream=True
         ).json()
         for item in response['data']['cryptoCurrencyList']:
@@ -42,7 +43,8 @@ class Parser:
                 return png_bio.getvalue()
 
     def get_info(self):
-        response = requests.get(url='https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit=1000').json()
+        response = requests.get(
+            url=f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit={self.__limit}').json()
         for item in response['data']['cryptoCurrencyList']:
             if item.get('symbol').lower() == self.__token.lower() or item.get('name').lower() == self.__token.lower():
                 name = item['name']
@@ -62,7 +64,6 @@ class Parser:
 
 
 def main():
-    
     Sg.theme('Reddit')
     layout = [
         [Sg.Text('Enter coin'), Sg.InputText(do_not_clear=False)],
@@ -70,13 +71,11 @@ def main():
         [Sg.Output(size=(50, 7)), Sg.Image(key="-IMAGE-", size=(60, 60))]
     ]
     parser = Parser('', layout)
-    
+
     while True:
         event, values = parser.window.read()
-        
         if event == Sg.WIN_CLOSED or event == 'Exit':
             break
-        
         if event:
             parser.token = values[0]
             parser.get_info()
