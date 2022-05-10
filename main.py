@@ -10,6 +10,7 @@ class Parser:
         self.__token = token
         self.__window = Sg.Window('Crypto', layout)
         self.__limit = 1000
+        self.__response = None
 
     @property
     def token(self):
@@ -27,12 +28,15 @@ class Parser:
     def window(self, window):
         self.__window = window
 
-    def get_img(self):
+    def get_data(self):
         response = requests.get(
             url=f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit={self.__limit}',
             stream=True
         ).json()
-        for item in response['data']['cryptoCurrencyList']:
+        self.__response = response
+
+    def get_img(self):
+        for item in self.__response['data']['cryptoCurrencyList']:
             if item.get('symbol').lower() == self.__token.lower() or item.get('name').lower() == self.__token.lower():
                 r = requests.get(url=f'https://s2.coinmarketcap.com/static/img/coins/64x64/{item.get("id")}.png')
                 pil_image = Image.open(BytesIO(r.content))
@@ -42,10 +46,8 @@ class Parser:
 
                 return png_bio.getvalue()
 
-    def get_info(self):
-        response = requests.get(
-            url=f'https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit={self.__limit}').json()
-        for item in response['data']['cryptoCurrencyList']:
+    def get_caption(self):
+        for item in self.__response['data']['cryptoCurrencyList']:
             if item.get('symbol').lower() == self.__token.lower() or item.get('name').lower() == self.__token.lower():
                 name = item['name']
                 symbol = item['symbol']
@@ -67,7 +69,7 @@ def main():
     Sg.theme('Reddit')
     layout = [
         [Sg.Text('Enter coin'), Sg.InputText(do_not_clear=False)],
-        [Sg.Button('Ok'), Sg.Button('Exit')],
+        [Sg.Button('Find'), Sg.Button('Exit')],
         [Sg.Output(size=(50, 7)), Sg.Image(key="-IMAGE-", size=(60, 60))]
     ]
     parser = Parser('', layout)
@@ -78,7 +80,8 @@ def main():
             break
         if event:
             parser.token = values[0]
-            parser.get_info()
+            parser.get_data()
+            parser.get_caption()
             parser.window["-IMAGE-"].update(parser.get_img())
 
 
